@@ -25,19 +25,17 @@ public class Main {
   public static void showMenu() {
     System.out.println("""
     \n##############################################################
-    
     ----- MENÚ DE OPCIONES -----
     Ingrese un número correspondiente a la opción deseada:
-    
+
       0: Salir.
       1: Crear producto.
       2: Mostrar productos.
       3: Buscar producto por nombre.
-      4: Editar producto.
-      5: Borrar producto.
+      4: Editar producto (por ID).
+      5: Borrar producto (por ID).
       6: Crear pedido.
       7: Mostrar pedidos.
-    
     ##############################################################
     """);
   }
@@ -86,7 +84,7 @@ public class Main {
       return;
     }
 
-    System.out.println("Listado de productos:");
+    System.out.println("\nListado de productos:");
     for (Product p : productsList) {
       System.out.println(p);
     }
@@ -94,7 +92,7 @@ public class Main {
 
   public static void getProductsByName(ArrayList<Product> productsList) {
     Scanner scanner = new Scanner(System.in);
-    System.out.print("Ingrese el nombre del producto a buscar: ");
+    System.out.print("Ingrese parte del nombre del producto: ");
     String search = scanner.nextLine().toLowerCase();
 
     ArrayList<Product> results = new ArrayList<>();
@@ -110,40 +108,49 @@ public class Main {
 
   public static void editProduct(ArrayList<Product> productsList) {
     Scanner scanner = new Scanner(System.in);
-    System.out.print("Ingrese el nombre del producto a editar: ");
-    String name = scanner.nextLine();
+    showProducts(productsList);
+    System.out.print("\nIngrese el ID del producto a editar: ");
+    String id = scanner.nextLine().trim();
 
-    Product p = getProductByName(productsList, name);
+    Product p = getProductById(productsList, id);
     if (p == null) {
       System.out.println("Producto no encontrado.");
       return;
     }
 
-    System.out.print("Nuevo nombre (ENTER para mantener): ");
-    String newName = scanner.nextLine().trim();
+    System.out.printf("¿Desea editar el siguiente producto?:\n%s\nIngrese 1 = Sí / 0 = No: ", p);
+    int option = scanner.nextInt();
+    scanner.nextLine();
+    if (option == 1) {
+      System.out.print("Nuevo nombre (ENTER para mantener): ");
+      String newName = scanner.nextLine().trim();
 
-    System.out.print("Nuevo precio (0 para mantener): ");
-    double newPrice = scanner.nextDouble();
+      System.out.print("Nuevo precio (0 para mantener): ");
+      double newPrice = scanner.nextDouble();
 
-    System.out.print("Nuevo stock (-1 para mantener): ");
-    int newStock = scanner.nextInt();
+      System.out.print("Nuevo stock (-1 para mantener): ");
+      int newStock = scanner.nextInt();
 
-    try {
-      if (!newName.isEmpty()) p.setName(newName);
-      if (newPrice > 0) p.setPrice(newPrice);
-      if (newStock >= 0) p.setStock(newStock);
-      System.out.println("Producto actualizado.");
-    } catch (IllegalArgumentException e) {
-      System.out.println("Error al intentar actualizar el producto: " + e.getMessage());
+      try {
+        if (!newName.isEmpty()) p.setName(newName);
+        if (newPrice > 0) p.setPrice(newPrice);
+        if (newStock >= 0) p.setStock(newStock);
+        System.out.println("Producto actualizado.");
+      } catch (IllegalArgumentException e) {
+        System.out.println("Error al actualizar producto: " + e.getMessage());
+      }
+    } else {
+      System.out.println("Operación cancelada.");
     }
   }
 
   public static void deleteProduct(ArrayList<Product> productsList) {
     Scanner scanner = new Scanner(System.in);
-    System.out.print("Ingrese el nombre del producto a eliminar: ");
-    String name = scanner.nextLine();
+    showProducts(productsList);
+    System.out.print("\nIngrese el ID del producto a eliminar: ");
+    String id = scanner.nextLine().trim();
 
-    Product p = getProductByName(productsList, name);
+    Product p = getProductById(productsList, id);
     if (p == null) {
       System.out.println("Producto no encontrado.");
       return;
@@ -173,10 +180,10 @@ public class Main {
     String keep;
     do {
       showProducts(productsList);
-      System.out.print("\nIngrese el nombre del producto: ");
-      String productName = scanner.nextLine().trim();
+      System.out.print("\nIngrese el ID del producto: ");
+      String productId = scanner.nextLine().trim();
 
-      Product p = getProductByName(productsList, productName);
+      Product p = getProductById(productsList, productId);
       if (p == null) {
         System.out.println("Producto no encontrado.");
       } else {
@@ -196,7 +203,6 @@ public class Main {
       keep = scanner.nextLine().trim().toLowerCase();
     } while (keep.equalsIgnoreCase("s"));
 
-    // Evitar pedidos vacíos
     if (order.isEmpty()) {
       System.out.println("No se puede crear un pedido vacío. Operación cancelada.");
       return;
@@ -206,7 +212,6 @@ public class Main {
     System.out.println("\nPedido creado exitosamente:");
     System.out.println(order);
   }
-
 
   public static void showOrders(ArrayList<Order> ordersList) {
     if (ordersList.isEmpty()) {
@@ -221,40 +226,15 @@ public class Main {
   }
 
   // --- Utilidades ---
-  public static Product getProductByName(ArrayList<Product> productsList, String name) {
-    if (name == null || name.trim().isEmpty()) return null;
-
-    String search = name.trim().toLowerCase();
-    ArrayList<Product> matches = new ArrayList<>();
+  public static Product getProductById(ArrayList<Product> productsList, String id) {
+    if (id == null || id.trim().isEmpty()) return null;
 
     for (Product p : productsList) {
-      if (p.getName().toLowerCase().contains(search)) {
-        matches.add(p);
+      if (p.getId().equalsIgnoreCase(id.trim())) {
+        return p;
       }
     }
-
-    if (matches.isEmpty()) {
-      return null;
-    } else if (matches.size() == 1) {
-      return matches.getFirst();
-    } else {
-      System.out.println("\nSe encontraron varios productos que coinciden:");
-      for (int i = 0; i < matches.size(); i++) {
-        System.out.printf("%d. %s\n", i + 1, matches.get(i).getName());
-      }
-
-      Scanner scanner = new Scanner(System.in);
-      System.out.print("Ingrese el número del producto que desea seleccionar: ");
-      int choice = scanner.nextInt();
-      scanner.nextLine(); // limpiar buffer
-
-      if (choice >= 1 && choice <= matches.size()) {
-        return matches.get(choice - 1);
-      } else {
-        System.out.println("Selección inválida.");
-        return null;
-      }
-    }
+    return null;
   }
 
   public static void pause() {
@@ -269,7 +249,7 @@ public class Main {
     productsList.add(new Product("Memoria RAM Corsair Vengeance 32GB DDR5", 159.99, 12));
     productsList.add(new Product("Placa de Video NVIDIA RTX 4070 Ti", 849.99, 4));
     productsList.add(new Product("Disco SSD Samsung 990 PRO 2TB NVMe", 179.99, 10));
-    productsList.add(new Product("Fuente de Poder Corsair RM850x 850W", 139.99, 7));
+    productsList.add(new Product("Fuente Corsair RM850x 850W", 139.99, 7));
     productsList.add(new Product("Gabinete NZXT H7 Flow", 129.99, 5));
     productsList.add(new Product("Monitor ASUS TUF Gaming 27'' 165Hz", 299.99, 9));
     productsList.add(new Product("Teclado Mecánico HyperX Alloy Origins", 119.99, 15));

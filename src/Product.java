@@ -1,4 +1,7 @@
+import java.util.UUID;
+
 public class Product {
+  private final String id;
   private String name;
   private double price;
   private int stock;
@@ -14,41 +17,33 @@ public class Product {
       throw new IllegalArgumentException("El stock no puede ser negativo.");
     }
 
+    // generar un id "corto"
+    this.id = UUID.randomUUID().toString().substring(0, 8);
     this.name = name.trim();
     this.price = price;
     this.stock = stock;
   }
 
-  public String getName() {
-    return this.name;
-  }
-
-  public double getPrice() {
-    return this.price;
-  }
-
-  public int getStock() {
-    return this.stock;
-  }
+  public String getId() { return id; }
+  public String getName() { return name; }
+  public double getPrice() { return price; }
+  public int getStock() { return stock; }
 
   public void setName(String name) {
-    if (name == null || name.trim().isEmpty()) {
-      throw new IllegalArgumentException("El nombre del producto no puede estar vacío.");
-    }
+    if (name == null || name.trim().isEmpty())
+      throw new IllegalArgumentException("El nombre no puede estar vacío.");
     this.name = name.trim();
   }
 
   public void setPrice(double price) {
-    if (price <= 0) {
+    if (price <= 0)
       throw new IllegalArgumentException("El precio debe ser mayor que 0.");
-    }
     this.price = price;
   }
 
   public void setStock(int stock) {
-    if (stock < 0) {
+    if (stock < 0)
       throw new IllegalArgumentException("El stock no puede ser negativo.");
-    }
     this.stock = stock;
   }
 
@@ -64,6 +59,7 @@ public class Product {
 
   @Override
   public String toString() {
-    return String.format("Producto: %s | Precio: $%.2f | Stock: %d", name, price, stock);
+    return String.format("ID: %s | Producto: %s | Precio: $%.2f | Stock: %d",
+        id, name, price, stock);
   }
 }
