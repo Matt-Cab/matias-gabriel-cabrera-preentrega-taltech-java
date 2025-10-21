@@ -44,30 +44,14 @@ public class Main {
     public static void manageOptions(int userOption, ArrayList<Product> productsList, ArrayList<Order> ordersList) {
         switch (userOption) {
             case 0 -> System.out.println("Gracias por usar esta app.");
-            case 1 -> {
-                createProduct(productsList);
-            }
-            case 2 -> {
-                showProducts(productsList);
-            }
-            case 3 -> {
-                getProductsByName(productsList);
-            }
-            case 4 -> {
-                editProduct(productsList);
-            }
-            case 5 -> {
-                deleteProduct(productsList);
-            }
-            case 6 -> {
-                createOrder(productsList, ordersList);
-            }
-            case 7 -> {
-                showOrders(ordersList);
-            }
-            default -> {
-                System.out.println("Ingrese una opción válida.");
-            }
+            case 1 -> createProduct(productsList);
+            case 2 -> showProducts(productsList);
+            case 3 -> getProductsByName(productsList);
+            case 4 -> editProduct(productsList);
+            case 5 -> deleteProduct(productsList);
+            case 6 -> createOrder(productsList, ordersList);
+            case 7 -> showOrders(ordersList);
+            default -> System.out.println("Ingrese una opción válida.");
         }
 
         if (userOption != 0) {
